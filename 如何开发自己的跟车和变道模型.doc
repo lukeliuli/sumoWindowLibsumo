@@ -1,0 +1,78 @@
+一、mysumoLC1  
+
+  mySumoLC1基于plexeSumo和我自己开发车队sumo,单纯的实现车道管理，车队和单车车道转换模型的各种开发。
+  
+	1.方法
+
+	1.1 用于把plexesumo中的omnet相关部分去掉，也包括veins。
+
+	1.2  TrafficManagerForLC用于车辆管理和车队管理
+		1.2.1 DynamicPositionManager用于把车和车队的关系理清，并且能够车和车队相互查询  搜索，有利于车加入车队和车离开车队。进一步代码理解，请看注释
+
+	1.3 simOneTime,模拟一次
+
+	1.4 simOneSetp,一次模拟中向前模拟一个小步
+
+		1.4.1 sendMsg(TM,vehicles):为核心代码，用于基于 traci.vehicle.setParameter函数，把各种信息传递给相应车辆。
+		traci.vehicle.setParameter(vehicles[i],"carFollowModel.MYCACC1", infoT);
+
+二、plexe-sumo-master
+	plexe-sumo-master是直接从https://github.com/lukeliuli/plexe-sumo.git下载的plexe-sumo.zip。直接下载ZIP,也就没有相应的git版本控制
+
+
+三、安装流程
+
+	3.1 生成有定义跟车模型和车道变换模型的SUMO.exe和SUMO-GUI.exe。
+		A.SUMO.exe和SUMO-GUI.exe的便衣和生成基于plexe-sumo      
+		B.注意设置环境变量，保证在系统里面命令行调用SUMO或者SUMO-GUI必须是自己生成的sumo.exe或者SUMO-GUI.exe。而不是其他版本sumo.exe或者SUMO-GUI.exe
+	3.2 运行MYLC工程
+		A.注意如果找不到traci,可以直接在VS2017工程文件中的搜索路径下面，添加sumo的tool路径
+
+
+	3.3 注意sumo工程的bin里面应该有sumocfg文件和相关文件
+
+	3.4 注意使用traci.init(PORT),用于在线调试跟车模型和，收集实验数据才使用  #traci.start(sumoCmd)
+
+四、调试过程
+	4.1.如果SUMO源程序功能完成和调试成功，基于traci.start(sumoCmd)进行实验和收集和分析数据
+	4.2.如果与SUMO联合调试用traci.init(PORT)
+
+五、开发自己的跟车模型
+	5.1.在sumo的源代码中开发，基于wiki的Developer/How To/Car-Following Model（https://sumo.dlr.de/wiki/Developer/How_To/Car-Following_Model）
+	5.2.最好复制一个现有的跟车模型h和cpp文件，进行修改。最好是CACC或者simplePlatoon,或者platoonLC
+	5.3.修改文件：
+		A.SUMOXMLDefinitions.h,SUMOXMLDefinitions.cpp
+		B.MSVehicleType.cpp
+		C.SUMOXMLDefinitions.H,SUMOXMLDefinitions.CPP(暂时不需要增加额外参数)
+		D.SUMOVehicleParserHelper.cpp
+		E.自己模型的.h 增加getModelID() 
+
+    
+六、开始自己的车道转换模型
+	6.1.在sumo的源代码中开发，基于wiki的Developer/How To/Car-Following Model（https://sumo.dlr.de/wiki/Developer/How_To/Car-Following_Model）
+        基于和开发开发自己的跟车模型一致
+	6.2 最好复制一个现有的跟车模型h和cpp文件，进行修改。最好是DK2008或者LCM_SL2015
+	6.3 修改文件：
+		A.SUMOXMLDefinitions.h,SUMOXMLDefinitions.cpp
+		B.SUMOVehicleParserHelper.cpp
+		C.MSAbstractLaneChangeModel.cpp
+		D.lcmodels\CMakeLists.txt
+
+七、自定义转换模型的
+	7.1 修改wantLaneChange
+	7.2 修改computeLatSpeed
+	7.3 修改decideDirection
+	   在"MSLaneChangerSublane.cpp"MSLaneChangerSublane::change()中调用，
+	 7.4  在"MSLaneChangerSublane::change()中调用中，先调用wantLaneChangeSublane ，再调用decideDirection
+
+备注
+	1.MSAbstractLaneChangeModel::startLaneChangeManeuver和primaryLaneChanged重要
+	2.updateCompletion，determineTargetLane，estimateLCDuration，checkTraCICommands()中的注释
+	3.see MSVehicle，TraciLaneChangePriority
+	4.influenceChangeDecision,车道转换状态更新
+	5.MSLaneChanger.h，MSLaneChanger.cpp重要代码
+	6.首先看https://sumo.dlr.de/wiki/Simulation/SublaneModel
+    7.https://sumo.dlr.de/wiki/Definition_of_Vehicles,_Vehicle_Types,_and_Routes#Lane-Changing_Models
+	8.https://sumo.dlr.de/wiki/Purgatory/Lane_Changing
+	9.编译自己的SUMO代码，本人使用VS2017并且下载了sumolibraries,具体步骤如下
+	https://sumo.dlr.de/wiki/Installing/Windows_Build
