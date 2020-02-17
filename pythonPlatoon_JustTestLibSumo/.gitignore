@@ -1,0 +1,16 @@
+*.egg
+/.~lock.README_plus2.odt#
+*.*~
+__pycache__/
+*.pkl
+data/
+**/*.egg-info
+.python-version
+.idea/
+.vscode/
+.DS_Store
+_build/
+needSoftwares/
+data/
+.vs/
+sumoCfg/summary.xml
